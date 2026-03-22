@@ -3,164 +3,114 @@ by Kadesha Reynolds & Mujtaba Ali
 Erdős Institute — Spring 2026
 
 1. Overview
-This project investigates whether data-driven clusters of U.S. equities, derived from statistical properties of stock return correlations, align with the traditional Global Industry Classification Standard (GICS) sector labels.
-Unlike supervised classification approaches (which risk circularity), this project uses a fully unsupervised pipeline:
+This project uncovers behavior‑based market structure in U.S. equities using an entirely unsupervised analytical pipeline. Rather than assuming that traditional sector labels explain market behavior, we let the data reveal how stocks truly move together.
+Using daily log returns from 104 U.S. large‑cap stocks (2006–2026), we:
 
-Daily log return computation
-Correlation matrix analysis
-Spectral factor extraction
-Low-dimensional embedding via eigenvectors
-Hierarchical clustering
-Evaluation via Normalized Mutual Information (NMI)
-Interpretation through cluster–sector alignment
+  -study co‑movement through return correlations,
+  -extract hidden patterns using spectral analysis,
+  -embed stocks in a low‑dimensional space using leading eigenvectors,
+  -apply hierarchical clustering (Ward linkage), and
+  -evaluate alignment with known GICS sectors using Normalized Mutual Information (NMI).
 
-The goal is not to predict sectors, but to understand latent market structure and how stocks behave relative to one another.
+Our goal is not prediction, but insight:
+to understand latent economic structure that drives stock behavior.
 
-2. Data
+2. Stakeholders & Practical Use
+This analysis is valuable for:
+
+  -Portfolio Managers — reveal hidden correlations and improve diversification
+  -Risk Management Teams — detect groups of stocks that move together to reduce portfolio volatility
+  -Quant Funds & Algorithmic Traders — use behavior-based clusters for factor-aware strategies
+  -Individual Traders — understand which stocks tend to move together during earnings or macro events
+
+Value-add: Clusters show defensive, cyclical, and other cross‑sector behavioral groups that sector labels alone cannot capture.
+
+3. Data
 
 Source: Yahoo Finance API (yfinance)
-Assets: 104 large-cap U.S. equities across 11 GICS sectors
+Assets: 104 large-cap U.S. equities across 11 sectors
 Period: 2006–2026
-Preprocessing:
+Transformations:
 
-Remove failed tickers
-Forward-fill & back-fill missing data
-Compute daily log returns
-
+Forward-fill + back-fill missing values
+Daily log returns
 
 
-Log returns standardize movements and enable meaningful correlation-based analysis.
 
-3. Exploratory Data Analysis (EDA)
-We explore:
-• Return Distribution
-Daily log returns exhibit heavy tails and clustering around zero.
-• Volatility Distribution
-Stocks show wide variation in volatility, consistent with sector differences.
-• Sector Composition
-Bar chart confirms broad sector coverage.
-• Correlation Structure
+Daily returns standardize stock movements and make correlation-based analysis meaningful.
 
-A 252‑day rolling correlation matrix reveals sector-level co-movement.
-Heatmap shows clear blocks (Tech, Healthcare, Financials, etc.).
-Histogram of pairwise correlations highlights spread across assets.
+4. Exploratory Analysis (High-Level Summary)
+We performed a brief EDA including:
 
-These analyses establish a foundation for spectral modeling.
+  -Return distribution: mostly centered around zero with heavy tails
+  -Volatility distribution: varied across sectors, indicating different risk profiles
+  -Correlation heatmap: clear blocks by sector, plus cross-sector relationships (shared factors)
 
-4. Spectral Analysis
-4.1 Eigenvalues
-Eigenvalues quantify the strength of latent market factors in the correlation matrix.
-4.2 Marčenko–Pastur Bound
-Used to distinguish meaningful structure from noise — a standard technique in quantitative finance.
-4.3 Eigenvectors
-Eigenvectors represent latent market directions (factors), such as:
+These insights motivated the use of spectral analysis to uncover deeper structure.
 
-Overall market movement
-Tech-driven behavior
-Defensive vs. cyclical dynamics
+5. Spectral Analysis
+We analyze the correlation matrix via:
 
-This analysis identifies the most informative dimensions of stock co-movement.
+  Eigenvalues: identify dominant market factors
+  Marčenko–Pastur bound: separate meaningful structure from noise
+  Eigenvectors: reveal hidden behavioral patterns not visible in raw correlations
 
-5. Spectral Embedding
-We construct a 3-dimensional embedding using the top eigenvectors (EV1–EV3):
-E=[EV1,EV2,EV3]E = [EV1, EV2, EV3]E=[EV1,EV2,EV3]
-In this reduced space:
-
-Stocks with similar return behavior appear near each other
-Natural grouping patterns become visible
-This embedding becomes the basis for clustering
-
+The top eigenvectors form a 3D spectral embedding representing the main dimensions of co‑movement.
 
 6. Clustering
-We apply hierarchical clustering (Ward linkage) to the spectral embedding.
+Using the spectral embedding, we apply hierarchical clustering (Ward linkage):
 
-k = 8 clusters
-Clusters vary from pure-sector groups to cross-sector mixtures
-Visualizations include label-based scatterplots and cluster-colored embeddings
-
-Clusters reveal real market themes such as:
-
-Pure Technology cluster
-Dominant Healthcare cluster
-Cyclical clusters mixing Financials + Industrials
-Defensive clusters mixing Utilities + Staples
+  k = 8 clusters
+  Reveals sector‑pure groups (Technology, Healthcare)
+  Reveals mixed groups representing economic behaviors:
+    Defensive: Utilities + Staples
+    Cyclical: Financials + Industrials
 
 
-7. Unsupervised Evaluation (NMI)
-To avoid circularity, we evaluate cluster quality using Normalized Mutual Information (NMI).
-✔ NMI compares:
 
-Unsupervised spectral clusters, and
-Known GICS sector labels
+Clusters reflect how stocks behave, not how sectors label them.
 
-✔ NMI ranges from:
+7. KPI: Unsupervised Evaluation Using NMI
+Our key performance indicator (KPI) is: Normalized Mutual Information (NMI)
+NMI measures how similar two sets of labels are, without requiring a predictive model.
+  0 → no alignment
+  1 → perfect alignment
 
-0 → no similarity
-1 → perfect alignment
-
-⭐ Our NMI = 0.527
-This reflects moderate alignment, meaning:
-
-Some clusters strongly correspond to sectors (e.g., Tech and Healthcare)
-Others capture broader factor exposures (e.g., Defensive, Cyclical)
-
-Cluster × Sector Table
-We compute a crosstab showing the distribution of sectors within each cluster, confirming:
-
-Pure clusters (e.g., Technology)
-Mixed clusters reflecting multi-factor behavior
+Our score: NMI = 0.527
+This indicates moderate alignment between cluster structure and sector labels — suggesting clusters capture deeper economic factors beyond sector categories.
+A cluster–sector contingency table further highlights:
+  -strong matches for Technology & Healthcare
+  -cross‑sector clusters driven by macroeconomic exposures
 
 
 8. Interpretation
-Key insights:
+The market is inherently multi‑factor:
+  -broad market risk
+  -interest-rate sensitivity
+  -defensive vs cyclical behavior
+  -sector-specific patterns
 
-Traditional GICS sectors do not perfectly explain return co-movement.
-Data-driven clusters reveal latent factors that go beyond sector definitions.
-Behavioral (functional) groupings emerge naturally:
+Therefore, clustering reveals behavioral market structure:
+  -Pure clusters represent sectors with strong internal cohesion
+  -Mixed clusters represent shared economic exposures
 
-Defensive clusters (Staples + Utilities)
-Cyclical clusters (Financials + Industrials)
-
-
-Spectral clustering highlights economic relationships, not just categories.
-
-The NMI of 0.527 quantitatively confirms that clusters partially—but not perfectly—align with sector labels.
-This is expected because stock behavior is driven by many overlapping forces, not just industry classification.
+This provides richer insight than sector classifications alone.
 
 9. Future Work
-Potential project extensions include:
+Potential extensions:
+  -Use more eigenvectors for higher-dimensional embeddings
+  -Apply nonlinear techniques (UMAP, t‑SNE)
+  -Explore time‑varying clusters across market regimes
+  -Incorporate macroeconomic factors
 
-Increasing embedding dimensionality (more eigenvectors)
-Trying nonlinear embeddings (t-SNE, UMAP)
-Varying the number of clusters (k optimization)
-Studying time-varying cluster behavior
-Adding macroeconomic or factor-model features
+10. How to Run This Project
 
+1. Install dependencies:
+     pip install yfinance seaborn scipy scikit-learn matplotlib pandas
+2. Run project_erdos.ipynb or the Python script version.
+3. Outputs saved automatically:
+    results/embedding.csv
+    results/clusters.csv
 
-10. How to Run the Notebook
+These support reproducibility and downstream analysis.
 
-
-Install required packages:
-Shellpip install yfinance seaborn scipy scikit-learn matplotlib pandasShow more lines
-
-
-Open the notebook in Google Colab or Jupyter.
-
-
-Run sections in order:
-
-Data Loading
-EDA
-Correlation Analysis
-Spectral Analysis
-Spectral Embedding
-Hierarchical Clustering
-NMI Evaluation
-Interpretation
-
-
-
-The notebook automatically saves outputs to:
-
-results/embedding.csv
-results/clusters.csv
